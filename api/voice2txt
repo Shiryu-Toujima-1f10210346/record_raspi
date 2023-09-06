@@ -1,0 +1,47 @@
+const Koa = require('koa');
+const Router = require('koa-router');
+const koaBody = require('koa-body');
+const { Configuration, OpenAIApi } = require("openai");
+const fs = require("fs");
+
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+  basePath: "https://api.openai.iniad.org/api/v1",
+});
+const openai = new OpenAIApi(configuration);
+
+const app = new Koa();
+const router = new Router();
+
+router.post('/api/voice2txt', async (ctx) => {
+  if (!ctx.request.files || !ctx.request.files.file) {
+    ctx.status = 400;
+    ctx.body = { error: 'No file provided.' };
+    return;
+  }
+
+  const file = ctx.request.files.file.path;
+
+  try {
+    const resp = await openai.createTranscription(
+      fs.createReadStream(file),
+      "whisper-1",
+      undefined,
+      "text"
+    );
+    ctx.status = 200;
+    ctx.body = resp.data;
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: 'Error processing transcription.' };
+  }
+});
+
+app.use(koaBody({ multipart: true }));
+app.use(router.routes());
+app.use(router.allowedMethods());
+
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
