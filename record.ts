@@ -39,7 +39,7 @@ const recordAudio = (): Promise<void> => {
 };
 
 // Main Function
-const main = async () => {
+export const main = async () => {
   try {
     await recordAudio();
     console.log('Audio recording finished.');
@@ -48,5 +48,4 @@ const main = async () => {
   }
 };
 
-main();
 

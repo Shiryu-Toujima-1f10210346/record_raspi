@@ -1,8 +1,16 @@
 import { exec } from 'child_process';
 import { writeFile } from 'fs/promises';
 import fetch from 'node-fetch';
-import FormData from 'form-data';
+import * as FormData from 'form-data';
 import recorder from 'node-record-lpcm16';
+import { main as recordAudioMain } from './record';  // ここでmainをインポート
+
+interface ApiResponse {
+  result: {
+    content: string;
+  };
+  text: string;
+}
 
 async function genConversation(input: string) {
   try {
@@ -13,7 +21,7 @@ async function genConversation(input: string) {
       },
       body: JSON.stringify({ user: input }),
     });
-    const data = await response.json();
+    const data = await response.json() as { result: { content: string } };
     await generateVoice(data.result.content);
   } catch (e) {
     console.log(e);
@@ -68,18 +76,21 @@ const startRecording = () => {
       body: formData,
     });
 
-    const data = await response.json();
+    // ここでmain関数（録音関連の処理）を呼び出す
+    await recordAudioMain();
+
+    const data = await response.json() as {text: string };
     await genConversation(data.text);
   });
 };
 
 // 3秒ごとにstartRecording関数を呼び出す
-setInterval(() => {
+
   try {
     startRecording();
   } catch (e) {
     console.error("Error in startRecording:", e);
   }
-}, 3000);
+
 
 console.log("Started 3-second interval for startRecording.");
