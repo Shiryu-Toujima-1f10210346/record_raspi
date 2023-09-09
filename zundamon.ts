@@ -1,13 +1,12 @@
 import axios from "axios";
 import * as fs from "fs";
-import FormData from "form-data";
 import * as dotenv from "dotenv";
+import FormData from "form-data";
 dotenv.config();
-//WisperAPI
+
 async function transcribeAudio() {
   const filePath = "./file.wav"; // こちらをwavファイルのパスに変更してください
   const token = process.env.OPEN_AI_API_KEY;
-  console.log("token:" + token);
   const formData = new FormData();
   formData.append("file", fs.createReadStream(filePath));
   formData.append("model", "whisper-1");
@@ -30,6 +29,9 @@ async function transcribeAudio() {
     console.log("Error:", error);
   }
 }
+
+// 関数を実行
+transcribeAudio();
 
 // 関数を実行
 transcribeAudio();
