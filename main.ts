@@ -1,7 +1,7 @@
 import { exec } from "child_process";
 import { writeFile } from "fs/promises";
 import fetch from "node-fetch";
-import FormData from "form-data";
+import * as FormData from "form-data";
 import recorder from "node-record-lpcm16";
 import { main as recordAudioMain } from "./record"; // ここでmainをインポート
 
