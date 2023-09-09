@@ -1,9 +1,9 @@
-import { exec } from 'child_process';
-import { writeFile } from 'fs/promises';
-import fetch from 'node-fetch';
-import * as FormData from 'form-data';
-import recorder from 'node-record-lpcm16';
-import { main as recordAudioMain } from './record';  // ここでmainをインポート
+import { exec } from "child_process";
+import { writeFile } from "fs/promises";
+import fetch from "node-fetch";
+import FormData from "form-data";
+import recorder from "node-record-lpcm16";
+import { main as recordAudioMain } from "./record"; // ここでmainをインポート
 
 interface ApiResponse {
   result: {
@@ -21,7 +21,7 @@ async function genConversation(input: string) {
       },
       body: JSON.stringify({ user: input }),
     });
-    const data = await response.json() as { result: { content: string } };
+    const data = (await response.json()) as { result: { content: string } };
     await generateVoice(data.result.content);
   } catch (e) {
     console.log(e);
@@ -57,21 +57,21 @@ const startRecording = () => {
 
   const audioStream = recorder.record({
     sampleRate: 44100,
-    threshold: 0.5
+    threshold: 0.5,
   });
 
-  audioStream.on('data', (data: Buffer) => {
+  audioStream.on("data", (data: Buffer) => {
     audioChunks.push(data);
   });
 
-  audioStream.on('end', async () => {
+  audioStream.on("end", async () => {
     const audioBlob = Buffer.concat(audioChunks);
-    formData.append('file', audioBlob, 'audio.webm');
+    formData.append("file", audioBlob, "audio.webm");
 
     const response = await fetch(endPoint, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_NOT_INIAD_KEY}`,
+        Authorization: `Bearer ${process.env.OPEN_AI_API_KEY}`,
       },
       body: formData,
     });
@@ -79,18 +79,17 @@ const startRecording = () => {
     // ここでmain関数（録音関連の処理）を呼び出す
     await recordAudioMain();
 
-    const data = await response.json() as {text: string };
+    const data = (await response.json()) as { text: string };
     await genConversation(data.text);
   });
 };
 
 // 3秒ごとにstartRecording関数を呼び出す
 
-  try {
-    startRecording();
-  } catch (e) {
-    console.error("Error in startRecording:", e);
-  }
-
+try {
+  startRecording();
+} catch (e) {
+  console.error("Error in startRecording:", e);
+}
 
 console.log("Started 3-second interval for startRecording.");

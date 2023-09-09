@@ -1,22 +1,22 @@
-const Koa = require('koa');
-const Router = require('koa-router');
-const koaBody = require('koa-body');
+const Koa = require("koa");
+const Router = require("koa-router");
+const koaBody = require("koa-body");
 const { Configuration, OpenAIApi } = require("openai");
 const fs = require("fs");
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
-  basePath: "https://api.openai.iniad.org/api/v1",
+  basePath: "https://api.openai.org/api/v1",
 });
 const openai = new OpenAIApi(configuration);
 
 const app = new Koa();
 const router = new Router();
 
-router.post('/api/voice2txt', async (ctx) => {
+router.post("/api/voice2txt", async (ctx) => {
   if (!ctx.request.files || !ctx.request.files.file) {
     ctx.status = 400;
-    ctx.body = { error: 'No file provided.' };
+    ctx.body = { error: "No file provided." };
     return;
   }
 
@@ -33,7 +33,7 @@ router.post('/api/voice2txt', async (ctx) => {
     ctx.body = resp.data;
   } catch (error) {
     ctx.status = 500;
-    ctx.body = { error: 'Error processing transcription.' };
+    ctx.body = { error: "Error processing transcription." };
   }
 });
 
